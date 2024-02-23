@@ -47,3 +47,29 @@ class LinearDiscriminantAnalysis:
     def transform(self, X: np.ndarray) -> np.ndarray:
         cen_mean = X - self.mean
         return np.dot(cen_mean, self.components)
+
+class AdversarialExamples:
+    def __init__(self) -> None:
+        pass
+
+    def pca_adversarial_data(self, n_samples, n_features):
+        c1_mean = np.array([0, 0])
+        c2_mean = np.array([5, 5])
+        c_cov = np.array([[1, 0.5], [0.5, 1]])
+
+        c1_sam = np.random.multivariate_normal(c1_mean, c_cov, n_samples // 2)
+        c2_sam = np.random.multivariate_normal(c2_mean, c_cov, n_samples // 2)
+
+        X = np.concatenate([c1_sam, c2_sam])
+        y = np.concatenate([np.zeros(n_samples // 2), np.ones(n_samples // 2)]).astype(int)
+        
+        i = np.arange(n_samples)
+        np.random.shuffle(i)
+        X = X[i]
+        y = y[i]
+        
+        pca = PrincipalComponentAnalysis(n_components=2)
+        pca.fit(X)
+        X_pca = pca.transform(X)
+
+        return X_pca, y
