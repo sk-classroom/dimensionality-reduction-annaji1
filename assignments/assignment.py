@@ -53,23 +53,11 @@ class AdversarialExamples:
         pass
 
     def pca_adversarial_data(self, n_samples, n_features):
-        
-        c1_mean = np.array([0, 0])
-        c2_mean = np.array([5, 5])
-        c_cov = np.array([[1, 0.5], [0.5, 1]])
-
-        c1_sam = np.random.multivariate_normal(c1_mean, c_cov, n_samples // 2)
-        c2_sam = np.random.multivariate_normal(c2_mean, c_cov, n_samples // 2)
-
-        X = np.concatenate([c1_sam, c2_sam])
-        y = np.concatenate([np.zeros(n_samples // 2), np.ones(n_samples // 2)]).astype(int)
-
-        i = np.arange(n_samples)
-        np.random.shuffle(i)
-        X = X[i]
-        y = y[i]
-
-        pca = PrincipalComponentAnalysis(n_components=2)
-        X_pca = pca.fit_transform(X)
-
-        return X_pca, y
+        m = np.where(np.arange(n_features) == 1, n_features, 0)
+        covar = np.diag([n_features**2] + [0] * 2)
+        dist_1 = np.random.multivariate_normal(m, covar, (n_samples//2))
+        dist_2 = np.random.multivariate_normal(-m, covar, (n_samples//2))
+        X = np.concatenate([dist_1, dist_2], axis = 0)
+        y = np.array((n_samples//2)*[0] + (n_samples//2)*[1])
+        i = np.random.permutation(n_samples)
+        return X[i], y[i]
